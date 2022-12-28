@@ -1,0 +1,2 @@
+class LeadRating < ApplicationRecord
+end

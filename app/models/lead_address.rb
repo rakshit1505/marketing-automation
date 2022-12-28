@@ -1,0 +1,2 @@
+class LeadAddress < ApplicationRecord
+end
