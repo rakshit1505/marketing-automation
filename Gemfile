@@ -31,8 +31,8 @@ gem 'devise-jwt'
 gem 'rack-cors'
 gem 'jquery-rails'
 
-
 group :development, :test do
+    gem 'dotenv-rails'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 end
@@ -59,3 +59,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'jsonapi-serializer'
 gem 'will_paginate'
+# for sms otp login/signup
+gem 'twilio-ruby', '~> 5.74.0'
+gem 'phonelib'
+

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_04_062322) do
+ActiveRecord::Schema.define(version: 2023_01_05_103956) do
 
   create_table "call_agendas", force: :cascade do |t|
     t.string "objective"
@@ -127,6 +127,15 @@ ActiveRecord::Schema.define(version: 2023_01_04_062322) do
 
   create_table "roles", force: :cascade do |t|
     t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "sms_otps", force: :cascade do |t|
+    t.string "full_phone_number"
+    t.datetime "valid_untill"
+    t.integer "pin"
+    t.boolean "activated"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

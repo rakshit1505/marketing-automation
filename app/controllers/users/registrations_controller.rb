@@ -11,9 +11,29 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # POST /resource
   def create
-    super
+    case params[:type] #### rescue invalid API format
+    when 'sms_account'
+      phone = params[:full_phone_number]
+      if phone.present?
+        otp_data = SmsOtp.new(full_phone_number: phone)
+        otp_data.save
+        token = serialized_phone_otp(otp_data)
+        render json:  [ { sms_otp: otp_data }, meta: { token: token } ], status: :created
+      else
+        render json: {errors: format_activerecord_errors(otp_data.errors)},
+          status: :unprocessable_entity
+      end
+    when 'email_account'
+
+
+    else
+      render json: { errors: [
+        { account: 'Invalid Account Type' },
+      ] }, status: :unprocessable_entity
+    end
   end
 
+ 
   # GET /resource/edit
   # def edit
   #   super
@@ -42,6 +62,14 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # protected
 
   private
+
+  def format_activerecord_errors(errors)
+    result = []
+    errors.each do |attribute, error|
+      result << { attribute => error }
+    end
+    result
+  end
 
   def respond_with(resource, _opts = {})
     if resource.persisted?
@@ -76,5 +104,15 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # def after_inactive_sign_up_path_for(resource)
   #   super(resource)
   # end
+
+  #encoding sms_otp with jwt
+  def serialized_phone_otp(otp_data)
+    payload = { id: otp_data.id,
+    exp: 30.minutes.from_now.to_i,
+   type: "sms_otp"
+       }
+    token= JWT.encode( payload , Rails.application.secret_key_base)
+    return token
+  end
 
 end
