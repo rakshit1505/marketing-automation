@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_04_062322) do
+ActiveRecord::Schema.define(version: 2023_01_05_065108) do
 
   create_table "call_agendas", force: :cascade do |t|
     t.string "objective"
@@ -136,7 +136,6 @@ ActiveRecord::Schema.define(version: 2023_01_04_062322) do
     t.string "last_name"
     t.string "due_date_time"
     t.integer "priority"
-    t.integer "integer"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -155,6 +154,11 @@ ActiveRecord::Schema.define(version: 2023_01_04_062322) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "jti", null: false
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
