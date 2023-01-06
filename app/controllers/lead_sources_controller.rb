@@ -1,5 +1,5 @@
 class LeadSourcesController < ApplicationController
-  include ErrorHandler
+  before_action :set_lead_source, only: [:show, :update, :destroy]
 
   def create
     lead_source = LeadSource.new(create_params)
@@ -13,48 +13,33 @@ class LeadSourcesController < ApplicationController
   end
 
   def show
-    begin
-      lead_source = LeadSource.find(find_id[:id])
-      return success_response(lead_source)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('lead_source', find_id[:id])
-    end
+    return success_response(@lead_source)
   end
 
   def update
     success = false
-    begin
-      lead_source = LeadSource.find(find_id[:id])
-    rescue
-      return item_not_found('lead_source', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = lead_source.update(update_params)
+        success = @lead_source.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(lead_source) unless success
+      return error_response(@lead_source) unless success
     end
-    return success_response(lead_source) if success
+    return success_response(@lead_source) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      lead_source = LeadSource.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('lead_source', find_id[:id])
-    end
-
-    if lead_source.destroy
+    if @lead_source.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(lead_source.errors) }
+      render json: { errors: format_activerecord_errors(@lead_source.errors) }
     end
   end
 
@@ -71,7 +56,7 @@ class LeadSourcesController < ApplicationController
       )
   end
 
-  def find_id
+  def find_id[:id]
     params.permit(:id)
   end
 
@@ -80,6 +65,10 @@ class LeadSourcesController < ApplicationController
       .permit(
         :name
       )
+  end
+
+  def set_lead_source
+    @lead_source = LeadSource.find(find_id[:id])
   end
 
   def success_response(lead_source, status = 200)

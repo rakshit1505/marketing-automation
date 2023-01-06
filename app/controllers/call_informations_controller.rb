@@ -1,72 +1,46 @@
 class CallInformationsController < ApplicationController
-  include ErrorHandler
+  before_action :find_call_type_and_lead, only: [:create]
+  before_action :set_call_information, only: [:show, :update, :destroy]
 
   def create
-    begin
-      call_type = CallType.find(find_call_type_id)
-    rescue
-      return item_not_found('call_type', find_call_type_id) if call_type.blank?
-    end
+    call_information = CallInformation.new(create_params)
 
     begin
-      lead = Lead.find(find_lead_id)
-    rescue
-      return item_not_found('lead', find_lead_id) if lead.blank?
+      call_information.save
+    rescue => errors
+      return direct_error_response(errors)
     end
-
-      call_information = CallInformation.new(create_params)
-
-      begin
-        call_information.save
-      rescue => errors
-        return direct_error_response(errors)
-      end
-      return success_response(call_information, :created)
+    return success_response(call_information, :created)
   end
 
   def show
-    begin
-      call_information = CallInformation.find(find_id[:id])
-      return success_response(call_information)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('call_information', find_id[:id])
-    end
+    return success_response(@call_information)
   end
 
   def update
     success = false
-    begin
-      call_information = CallInformation.find(find_id[:id])
-    rescue
-      return item_not_found('call_information', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = call_information.update(update_params)
+        success = @call_information.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(call_information) unless success
+      return error_response(@call_information) unless success
     end
-    return success_response(call_information) if success
+    return success_response(@call_information) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      call_information = CallInformation.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('call_information', find_id[:id])
-    end
-
-    if call_information.destroy
+    if @call_information.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(call_information.errors) }
+      render json: { errors: format_activerecord_errors(@call_information.errors) }
     end
   end
 
@@ -95,14 +69,6 @@ class CallInformationsController < ApplicationController
     params.permit(:id)
   end
 
-  def find_call_type_id
-    create_params[:call_type_id]
-  end
-
-  def find_lead_id
-    create_params[:lead_id]
-  end
-
   def update_params
     params.require(:data)
       .permit(
@@ -112,6 +78,15 @@ class CallInformationsController < ApplicationController
         :status,
         :reminder
       )
+  end
+
+  def find_call_type_and_lead
+    call_type = CallType.find(create_params[:call_type_id])
+    lead = Lead.find(create_params[:lead_id])
+  end
+
+  def set_call_information
+    @call_information = CallInformation.find(find_id[:id])
   end
 
   def success_response(call_information, status = 200)

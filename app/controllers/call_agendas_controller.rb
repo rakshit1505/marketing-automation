@@ -1,11 +1,11 @@
 class CallAgendasController < ApplicationController
-  include ErrorHandler
+  before_action :set_call_agenda, only: [:show, :update, :destroy]
 
   def create
     begin
-      call_information = CallInformation.find(find_call_information_id)
+      call_information = CallInformation.find(create_params[:call_information_id])
     rescue
-      return item_not_found('call_information', find_call_information_id) if call_information.blank?
+      return item_not_found('call_information', create_params[:call_information_id]) if call_information.blank?
     end
 
       call_agenda = CallAgenda.new(create_params)
@@ -19,48 +19,33 @@ class CallAgendasController < ApplicationController
   end
 
   def show
-    begin
-      call_agenda = CallAgenda.find(find_id[:id])
-      return success_response(call_agenda)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('call_agenda', find_id[:id])
-    end
+    return success_response(@call_agenda)
   end
 
   def update
     success = false
-    begin
-      call_agenda = CallAgenda.find(find_id[:id])
-    rescue
-      return item_not_found('call_agenda', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = call_agenda.update(update_params)
+        success = @call_agenda.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(call_agenda) unless success
+      return error_response(@call_agenda) unless success
     end
-    return success_response(call_agenda) if success
+    return success_response(@call_agenda) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      call_agenda = CallAgenda.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('call_agenda', find_id[:id])
-    end
-
-    if call_agenda.destroy
+    if @call_agenda.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(call_agenda.errors) }
+      render json: { errors: format_activerecord_errors(@call_agenda.errors) }
     end
   end
 
@@ -83,16 +68,16 @@ class CallAgendasController < ApplicationController
     params.permit(:id)
   end
 
-  def find_call_information_id
-    create_params[:call_information_id]
-  end
-
   def update_params
     params.require(:data)
       .permit(
         :objective,
         :description
       )
+  end
+
+  def set_call_agenda
+    @call_agenda = CallAgenda.find(find_id[:id])
   end
 
   def success_response(call_agenda, status = 200)

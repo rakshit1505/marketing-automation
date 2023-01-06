@@ -1,5 +1,5 @@
 class LeadStatusesController < ApplicationController
-  include ErrorHandler
+  before_action :set_lead_status, only: [:show, :update, :destroy]
 
   def create
     lead_status = LeadStatus.new(create_params)
@@ -13,48 +13,33 @@ class LeadStatusesController < ApplicationController
   end
 
   def show
-    begin
-      lead_status = LeadStatus.find(find_id[:id])
-      return success_response(lead_status)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('lead_status', find_id[:id])
-    end
+    return success_response(@lead_status)
   end
 
   def update
     success = false
-    begin
-      lead_status = LeadStatus.find(find_id[:id])
-    rescue
-      return item_not_found('lead_status', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = lead_status.update(update_params)
+        success = @lead_status.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(lead_status) unless success
+      return error_response(@lead_status) unless success
     end
-    return success_response(lead_status) if success
+    return success_response(@lead_status) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      lead_status = LeadStatus.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('lead_status', find_id[:id])
-    end
-
-    if lead_status.destroy
+    if @lead_status.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(lead_status.errors) }
+      render json: { errors: format_activerecord_errors(@lead_status.errors) }
     end
   end
 
@@ -71,7 +56,7 @@ class LeadStatusesController < ApplicationController
       )
   end
 
-  def find_id
+  def find_id[:id]
     params.permit(:id)
   end
 
@@ -80,6 +65,10 @@ class LeadStatusesController < ApplicationController
       .permit(
         :name
       )
+  end
+
+  def set_lead_status
+    @lead_status = LeadStatus.find(find_id[:id])
   end
 
   def success_response(lead_status, status = 200)

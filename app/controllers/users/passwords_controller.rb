@@ -1,5 +1,6 @@
 class Users::PasswordsController < ApplicationController
-  skip_before_action :verify_authenticity_token  
+  skip_before_action :verify_authenticity_token
+  respond_to :json  
   before_action :find_user
   before_action :find_otp, only: [:forgot]
 

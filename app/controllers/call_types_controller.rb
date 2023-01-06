@@ -1,5 +1,5 @@
 class CallTypesController < ApplicationController
-  include ErrorHandler
+  before_action :set_call_type, only: [:show, :update, :destroy]
 
   def create
     call_type = CallType.new(create_params)
@@ -13,48 +13,32 @@ class CallTypesController < ApplicationController
   end
 
   def show
-    begin
-      call_type = CallType.find(find_id[:id])
-      return success_response(call_type)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('call_type', find_id[:id])
-    end
+    return success_response(@call_type)
   end
 
   def update
     success = false
-    begin
-      call_type = CallType.find(find_id[:id])
-    rescue
-      return item_not_found('call_type', find_id[:id])
-    end
     if update_params.present?
       begin
-        success = call_type.update(update_params)
+        success = @call_type.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(call_type) unless success
+      return error_response(@call_type) unless success
     end
-    return success_response(call_type) if success
+    return success_response(@call_type) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      call_type = CallType.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('call_type', find_id[:id])
-    end
-
-    if call_type.destroy
+    if @call_type.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(call_type.errors) }
+      render json: { errors: format_activerecord_errors(@call_type.errors) }
     end
   end
 
@@ -80,6 +64,10 @@ class CallTypesController < ApplicationController
       .permit(
         :name
       )
+  end
+
+  def set_call_type
+    @call_type = CallType.find(find_id[:id])
   end
 
   def success_response(call_type, status = 200)

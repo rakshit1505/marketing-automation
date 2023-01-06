@@ -1,5 +1,5 @@
 class TasksController < ApplicationController
-  include ErrorHandler
+  before_action :set_task, only: [:show, :update, :destroy]
 
   def create
     task = Task.new(create_params)
@@ -13,48 +13,33 @@ class TasksController < ApplicationController
   end
 
   def show
-    begin
-      task = Task.find(find_id[:id])
-      return success_response(task)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('task', find_id[:id])
-    end
+    return success_response(@task)
   end
 
   def update
     success = false
-    begin
-      task = Task.find(find_id[:id])
-    rescue
-      return item_not_found('task', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = task.update(update_params)
+        success = @task.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(task) unless success
+      return error_response(@task) unless success
     end
-    return success_response(task) if success
+    return success_response(@task) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      task = Task.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('task', find_id[:id])
-    end
-
-    if task.destroy
+    if @task.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(task.errors) }
+      render json: { errors: format_activerecord_errors(@task.errors) }
     end
   end
 
@@ -88,6 +73,10 @@ class TasksController < ApplicationController
         :priority,
         :integer
       )
+  end
+
+  def set_task
+    @task = Task.find(find_id[:id])
   end
 
   def success_response(task, status = 200)

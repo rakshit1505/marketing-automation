@@ -8,4 +8,16 @@ Rails.application.routes.draw do
 
   resources :accounts, only: [:show, :update, :destroy, :index]
   resources :departments, only: [:create, :show, :update, :destroy, :index]
+  resources :call_agendas, only: [:create, :show, :update, :destroy, :index]
+  resources :call_informations, only: [:create, :show, :update, :destroy, :index]
+  resources :call_types, only: [:create, :show, :update, :destroy, :index]
+  resources :lead_addresses, only: [:create, :show, :update, :destroy, :index]
+  resources :lead_ratings, only: [:create, :show, :update, :destroy, :index]
+  resources :lead_sources, only: [:create, :show, :update, :destroy, :index]
+  resources :lead_statuses, only: [:create, :show, :update, :destroy, :index]
+  resources :leads, only: [:create, :show, :update, :destroy, :index]
+  resources :meetings, only: [:create, :show, :update, :destroy, :index]
+  resources :notes, only: [:create, :show, :update, :destroy, :index]
+  resources :roles, only: [:create, :show, :update, :destroy, :index]
+  resources :tasks, only: [:create, :show, :update, :destroy, :index]
 end
