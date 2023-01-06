@@ -1,4 +1,6 @@
 class DepartmentSerializer
   include JSONAPI::Serializer
-  attributes 
+  attributes *[
+    :name
+  ] 
 end

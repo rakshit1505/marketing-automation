@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_05_065108) do
+ActiveRecord::Schema.define(version: 2023_01_06_065806) do
 
   create_table "call_agendas", force: :cascade do |t|
     t.string "objective"
@@ -143,7 +143,6 @@ ActiveRecord::Schema.define(version: 2023_01_05_065108) do
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
-    t.string "name"
     t.string "phone"
     t.integer "role_id"
     t.integer "department_id"
@@ -158,9 +157,13 @@ ActiveRecord::Schema.define(version: 2023_01_05_065108) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
+    t.string "first_name", limit: 100
+    t.string "last_name", limit: 100
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["first_name"], name: "index_users_on_first_name"
     t.index ["jti"], name: "index_users_on_jti", unique: true
+    t.index ["last_name"], name: "index_users_on_last_name"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 

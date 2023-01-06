@@ -1,4 +1,6 @@
 class LeadSourceSerializer
   include JSONAPI::Serializer
-  attributes 
+  attributes *[
+    :name
+  ] 
 end

@@ -1,4 +1,6 @@
 class RoleSerializer
   include JSONAPI::Serializer
-  attributes 
+  attributes *[
+    :name
+  ] 
 end
