@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_06_065806) do
+ActiveRecord::Schema.define(version: 2023_01_09_102228) do
 
   create_table "call_agendas", force: :cascade do |t|
     t.string "objective"
@@ -48,6 +48,21 @@ ActiveRecord::Schema.define(version: 2023_01_06_065806) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "deals", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "potential_id", null: false
+    t.datetime "kick_off_date"
+    t.datetime "sign_off_date"
+    t.string "term"
+    t.string "tenure"
+    t.string "description"
+    t.integer "status"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["potential_id"], name: "index_deals_on_potential_id"
+    t.index ["user_id"], name: "index_deals_on_user_id"
+  end
+
   create_table "departments", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
@@ -77,12 +92,6 @@ ActiveRecord::Schema.define(version: 2023_01_06_065806) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "lead_statuses", force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
   create_table "leads", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
@@ -99,6 +108,8 @@ ActiveRecord::Schema.define(version: 2023_01_06_065806) do
     t.integer "lead_rating_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "user_id"
+    t.index ["user_id"], name: "index_leads_on_user_id"
   end
 
   create_table "meetings", force: :cascade do |t|
@@ -123,12 +134,34 @@ ActiveRecord::Schema.define(version: 2023_01_06_065806) do
     t.integer "attachment_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "notable_type"
+    t.integer "notable_id"
+    t.index ["notable_type", "notable_id"], name: "index_notes_on_notable_type_and_notable_id"
+  end
+
+  create_table "potentials", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "lead_id", null: false
+    t.integer "status"
+    t.string "outcome"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["lead_id"], name: "index_potentials_on_lead_id"
+    t.index ["user_id"], name: "index_potentials_on_user_id"
   end
 
   create_table "roles", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "statuses", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "statusable_type"
+    t.integer "statusable_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -167,4 +200,9 @@ ActiveRecord::Schema.define(version: 2023_01_06_065806) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "deals", "potentials"
+  add_foreign_key "deals", "users"
+  add_foreign_key "leads", "users"
+  add_foreign_key "potentials", "leads"
+  add_foreign_key "potentials", "users"
 end
