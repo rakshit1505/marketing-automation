@@ -1,49 +1,52 @@
-class CallTypesController < ApplicationController
-  before_action :set_call_type, only: [:show, :update, :destroy]
+class PotentialsController < ApplicationController
+  before_action :set_potential, only: [:show, :update, :destroy]
 
   def create
-    call_type = CallType.new(create_params)
+    lead = Lead.find(params.permit(:id))
+
+    potential = Potential.new(create_params)
 
     begin
-      call_type.save
+      potential.save
     rescue => errors
       return direct_error_response(errors)
     end
-    return success_response(call_type, :created)
+    return success_response(potential, :created)
   end
 
   def show
-    return success_response(@call_type)
+    return success_response(@potential)
   end
 
   def update
     success = false
     if update_params.present?
       begin
-        success = @call_type.update(update_params)
+        success = @potential.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(@call_type) unless success
+      return error_response(@potential) unless success
     end
-    return success_response(@call_type) if success
+    return success_response(@potential) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    if @call_type.destroy
+
+    if @potential.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(@call_type.errors) }
+      render json: { errors: format_activerecord_errors(@potential.errors) }
     end
   end
 
   def index
-    render json: find_call_types, status: 200
+    render json: find_potentials, status: 200
   end
 
   private
@@ -51,34 +54,37 @@ class CallTypesController < ApplicationController
   def create_params
     params.require(:data)
       .permit(
-        :name
+        :lead_id,
+        :outcome,
+        :status
+      ).merge(
+        user_id: current_user.id
       )
-  end
-
-  def find_id
-    params.permit(:id)
   end
 
   def update_params
     params.require(:data)
       .permit(
-        :name
+        :outcome,
+        :status
+      ).merge(
+        user_id: current_user.id
       )
   end
 
-  def set_call_type
-    @call_type = CallType.find(find_id[:id])
+  def set_potential
+    @potential = Potential.find(find_id[:id])
   end
 
-  def success_response(call_type, status = 200)
-    render json: CallTypeSerializer.new(call_type).
+  def success_response(potential, status = 200)
+    render json: PotentialSerializer.new(potential).
       serializable_hash,
       status: status
   end
 
-  def error_response(call_type)
+  def error_response(potential)
     render json: {
-      errors: format_activerecord_errors(call_type.errors)
+      errors: format_activerecord_errors(potential.errors)
     },
     status: :unprocessable_entity
   end
@@ -102,30 +108,30 @@ class CallTypesController < ApplicationController
     params.permit(:page, :per_page)
   end
 
-  def find_call_types
+  def find_potentials
     pagination_builder = PaginationBuilder.new(index_params[:page], index_params[:per_page])
     limit, offset = pagination_builder.paginate
-    call_types = CallType.
+    potentials = Potential.
       order(id: :asc).
       limit(limit).offset(offset)
-    next_page = CallType.
+    next_page = Potential.
       limit(1).offset(offset + limit).count
-    data = serialized_call_types(call_types, next_page)
+    data = serialized_potentials(potentials, next_page)
     merge_pagination_data(data, pagination_builder)
     data
   end
 
-  def serialized_call_types(call_types, next_page)
+  def serialized_potentials(potentials, next_page)
     {
       next_page: next_page > 0,
-      call_types: CallTypeSerializer.new(call_types).
+      potentials: PotentialSerializer.new(potentials).
         serializable_hash
     }
   end
 
   def merge_pagination_data(data, pagination_builder)
     if pagination_builder.page == 1
-      total_count = CallType.
+      total_count = Potential.
         count
       total_pages = pagination_builder.total_pages(total_count)
       data.merge!({

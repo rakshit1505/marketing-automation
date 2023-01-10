@@ -1,5 +1,5 @@
-roleclass RolesController < ApplicationController
-  include ErrorHandler
+class RolesController < ApplicationController
+  before_action :set_role, only: [:show, :update, :destroy]
 
   def create
     role = Role.new(create_params)
@@ -13,48 +13,33 @@ roleclass RolesController < ApplicationController
   end
 
   def show
-    begin
-      role = Role.find(find_id[:id])
-      return success_response(role)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('role', find_id[:id])
-    end
+    return success_response(@role)
   end
 
   def update
     success = false
-    begin
-      role = Role.find(find_id[:id])
-    rescue
-      return item_not_found('role', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = role.update(update_params)
+        success = @role.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(role) unless success
+      return error_response(@role) unless success
     end
-    return success_response(role) if success
+    return success_response(@role) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      role = Role.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('role', find_id[:id])
-    end
-
-    if role.destroy
+    if @role.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(role.errors) }
+      render json: { errors: format_activerecord_errors(@role.errors) }
     end
   end
 
@@ -80,6 +65,10 @@ roleclass RolesController < ApplicationController
       .permit(
         :name
       )
+  end
+
+  def set_role
+    @role = Role.find(find_id[:id])
   end
 
   def success_response(role, status = 200)

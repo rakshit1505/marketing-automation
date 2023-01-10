@@ -1,4 +1,9 @@
 class TaskSerializer
   include JSONAPI::Serializer
-  attributes 
+  attributes *[
+    :task_owner,
+    :last_name,
+    :due_date_time,
+    :priority
+  ]
 end

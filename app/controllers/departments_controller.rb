@@ -1,5 +1,5 @@
 class DepartmentsController < ApplicationController
-  include ErrorHandler
+  before_action :set_department, only: [:show, :update, :destroy]
 
   def create
     department = Department.new(create_params)
@@ -13,48 +13,33 @@ class DepartmentsController < ApplicationController
   end
 
   def show
-    begin
-      department = Department.find(find_id[:id])
-      return success_response(department)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('department', find_id[:id])
-    end
+    return success_response(@department)
   end
 
   def update
     success = false
-    begin
-      department = Department.find(find_id[:id])
-    rescue
-      return item_not_found('department', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = department.update(update_params)
+        success = @department.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(department) unless success
+      return error_response(@department) unless success
     end
-    return success_response(department) if success
+    return success_response(@department) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      department = Department.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('department', find_id[:id])
-    end
-
-    if department.destroy
+    if @department.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(department.errors) }
+      render json: { errors: format_activerecord_errors(@department.errors) }
     end
   end
 
@@ -80,6 +65,10 @@ class DepartmentsController < ApplicationController
       .permit(
         :name
       )
+  end
+
+  def set_department
+    @department = Department.find(find_id[:id])
   end
 
   def success_response(department, status = 200)

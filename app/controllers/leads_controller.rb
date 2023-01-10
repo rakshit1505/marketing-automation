@@ -1,22 +1,8 @@
 class LeadsController < ApplicationController
-  include ErrorHandler
+  before_action :find_require_ids, only: [:create]
+  before_action :set_lead, only: [:show, :update, :destroy]
 
   def create
-    begin
-      lead_source = LeadSource.find(find_lead_source_id)
-    rescue
-      return item_not_found('lead_source', find_lead_source_id) if lead_source.blank?
-    end
-    begin
-      lead_status = LeadStatus.find(find_lead_status_id)
-    rescue
-      return item_not_found('lead_status', find_lead_status_id) if lead_status.blank?
-    end
-    begin
-      lead_rating = LeadRating.find(find_lead_rating_id)
-    rescue
-      return item_not_found('lead_rating', find_lead_rating_id) if lead_rating.blank?
-    end
     lead = Lead.new(create_params)
 
     begin
@@ -28,48 +14,33 @@ class LeadsController < ApplicationController
   end
 
   def show
-    begin
-      lead = Lead.find(find_id[:id])
-      return success_response(lead)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('lead', find_id[:id])
-    end
+    return success_response(@lead)
   end
 
   def update
     success = false
-    begin
-      lead = Lead.find(find_id[:id])
-    rescue
-      return item_not_found('lead', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = lead.update(update_params)
+        success = @lead.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(lead) unless success
+      return error_response(@lead) unless success
     end
-    return success_response(lead) if success
+    return success_response(@lead) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      lead = Lead.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('lead', find_id[:id])
-    end
-
-    if lead.destroy
+    if @lead.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(lead.errors) }
+      render json: { errors: format_activerecord_errors(@lead.errors) }
     end
   end
 
@@ -102,18 +73,6 @@ class LeadsController < ApplicationController
     params.permit(:id)
   end
 
-  def find_lead_rating_id
-    create_params[:lead_rating_id]
-  end
-
-  def find_lead_source_id
-    create_params[:lead_source_id]
-  end
-
-  def find_lead_status_id
-    create_params[:lead_status_id]
-  end
-
   def update_params
     params.require(:data)
       .permit(
@@ -131,6 +90,28 @@ class LeadsController < ApplicationController
         :website,
         :address_id
       )
+  end
+
+  def set_lead
+    @lead = Lead.find(find_id[:id])
+  end
+
+  def find_require_ids
+    begin
+      lead_source = LeadSource.find(create_params[:lead_source_id])
+    rescue
+      return item_not_found('lead_source', create_params[:lead_source_id]) if lead_source.blank?
+    end
+    begin
+      lead_status = LeadStatus.find(create_params[:lead_status_id])
+    rescue
+      return item_not_found('lead_status', create_params[:lead_status_id]) if lead_status.blank?
+    end
+    begin
+      lead_rating = LeadRating.find(create_params[:lead_rating_id])
+    rescue
+      return item_not_found('lead_rating', create_params[:lead_rating_id]) if lead_rating.blank?
+    end
   end
 
   def success_response(lead, status = 200)

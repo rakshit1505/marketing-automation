@@ -1,49 +1,52 @@
-class CallTypesController < ApplicationController
-  before_action :set_call_type, only: [:show, :update, :destroy]
+class DealsController < ApplicationController
+  before_action :set_deal, only: [:show, :update, :destroy]
 
   def create
-    call_type = CallType.new(create_params)
+    potential = Potential.find(params.permit(:id))
+
+    deal = Deal.new(create_params)
 
     begin
-      call_type.save
+      deal.save
     rescue => errors
       return direct_error_response(errors)
     end
-    return success_response(call_type, :created)
+    return success_response(deal, :created)
   end
 
   def show
-    return success_response(@call_type)
+    return success_response(@deal)
   end
 
   def update
     success = false
     if update_params.present?
       begin
-        success = @call_type.update(update_params)
+        success = @deal.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(@call_type) unless success
+      return error_response(@deal) unless success
     end
-    return success_response(@call_type) if success
+    return success_response(@deal) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    if @call_type.destroy
+
+    if @deal.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(@call_type.errors) }
+      render json: { errors: format_activerecord_errors(@deal.errors) }
     end
   end
 
   def index
-    render json: find_call_types, status: 200
+    render json: find_deals, status: 200
   end
 
   private
@@ -51,34 +54,45 @@ class CallTypesController < ApplicationController
   def create_params
     params.require(:data)
       .permit(
-        :name
+        :potential_id,
+        :kick_off_date,
+        :sign_off_date,
+        :term,
+        :tenure,
+        :description,
+        :status
+      ).merge(
+        user_id: current_user.id
       )
-  end
-
-  def find_id
-    params.permit(:id)
   end
 
   def update_params
     params.require(:data)
       .permit(
-        :name
+        :kick_off_date,
+        :sign_off_date,
+        :term,
+        :tenure,
+        :description,
+        :status
+      ).merge(
+        user_id: current_user.id
       )
   end
 
-  def set_call_type
-    @call_type = CallType.find(find_id[:id])
+  def set_deal
+    @deal = Deal.find(find_id[:id])
   end
 
-  def success_response(call_type, status = 200)
-    render json: CallTypeSerializer.new(call_type).
+  def success_response(deal, status = 200)
+    render json: DealSerializer.new(deal).
       serializable_hash,
       status: status
   end
 
-  def error_response(call_type)
+  def error_response(deal)
     render json: {
-      errors: format_activerecord_errors(call_type.errors)
+      errors: format_activerecord_errors(deal.errors)
     },
     status: :unprocessable_entity
   end
@@ -102,30 +116,30 @@ class CallTypesController < ApplicationController
     params.permit(:page, :per_page)
   end
 
-  def find_call_types
+  def find_deals
     pagination_builder = PaginationBuilder.new(index_params[:page], index_params[:per_page])
     limit, offset = pagination_builder.paginate
-    call_types = CallType.
+    deals = Deal.
       order(id: :asc).
       limit(limit).offset(offset)
-    next_page = CallType.
+    next_page = Deal.
       limit(1).offset(offset + limit).count
-    data = serialized_call_types(call_types, next_page)
+    data = serialized_deals(deals, next_page)
     merge_pagination_data(data, pagination_builder)
     data
   end
 
-  def serialized_call_types(call_types, next_page)
+  def serialized_deals(deals, next_page)
     {
       next_page: next_page > 0,
-      call_types: CallTypeSerializer.new(call_types).
+      deals: DealSerializer.new(deals).
         serializable_hash
     }
   end
 
   def merge_pagination_data(data, pagination_builder)
     if pagination_builder.page == 1
-      total_count = CallType.
+      total_count = Deal.
         count
       total_pages = pagination_builder.total_pages(total_count)
       data.merge!({

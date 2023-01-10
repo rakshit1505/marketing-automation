@@ -1,5 +1,5 @@
 class MeetingsController < ApplicationController
-  include ErrorHandler
+  before_action :set_meeting, only: [:show, :update, :destroy]
 
   def create
     meeting = Meeting.new(create_params)
@@ -13,48 +13,33 @@ class MeetingsController < ApplicationController
   end
 
   def show
-    begin
-      meeting = Meeting.find(find_id[:id])
-      return success_response(meeting)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('meeting', find_id[:id])
-    end
+    return success_response(@meeting)
   end
 
   def update
     success = false
-    begin
-      meeting = Meeting.find(find_id[:id])
-    rescue
-      return item_not_found('meeting', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = meeting.update(update_params)
+        success = @meeting.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(meeting) unless success
+      return error_response(@meeting) unless success
     end
-    return success_response(meeting) if success
+    return success_response(@meeting) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      meeting = Meeting.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('meeting', find_id[:id])
-    end
-
-    if meeting.destroy
+    if @meeting.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(meeting.errors) }
+      render json: { errors: format_activerecord_errors(@meeting.errors) }
     end
   end
 
@@ -96,6 +81,10 @@ class MeetingsController < ApplicationController
         :agenda,
         :status
       )
+  end
+
+  def set_meeting
+    @meeting = Meeting.find(find_id[:id])
   end
 
   def success_response(meeting, status = 200)

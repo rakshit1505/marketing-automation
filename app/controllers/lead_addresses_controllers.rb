@@ -1,66 +1,47 @@
 class LeadAddressesController < ApplicationController
-  include ErrorHandler
+  before_action :set_lead_address, only: [:show, :update, :destroy]
 
   def create
+    lead = Lead.find(create_params[:lead_id])
+
+    lead_address = LeadAddress.new(create_params)
+
     begin
-      lead = Lead.find(find_lead_id)
-    rescue
-      return item_not_found('lead', find_lead_id) if lead.blank?
+      lead_address.save
+    rescue => errors
+      return direct_error_response(errors)
     end
-
-      lead_address = LeadAddress.new(create_params)
-
-      begin
-        lead_address.save
-      rescue => errors
-        return direct_error_response(errors)
-      end
-      return success_response(lead_address, :created)
+    return success_response(lead_address, :created)
   end
 
   def show
-    begin
-      lead_address = LeadAddress.find(find_id[:id])
-      return success_response(lead_address)
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('lead_address', find_id[:id])
-    end
+    return success_response(@lead_address)
   end
 
   def update
     success = false
-    begin
-      lead_address = LeadAddress.find(find_id[:id])
-    rescue
-      return item_not_found('lead_address', find_id[:id])
-    end
+
     if update_params.present?
       begin
-        success = lead_address.update(update_params)
+        success = @lead_address.update(update_params)
       rescue => errors
         return direct_error_response(errors)
       end
-      return error_response(lead_address) unless success
+      return error_response(@lead_address) unless success
     end
-    return success_response(lead_address) if success
+    return success_response(@lead_address) if success
   end
 
   # ensure method is used to keep delete as idempotent
   def destroy
-    begin
-      lead_address = LeadAddress.find(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('lead_address', find_id[:id])
-    end
-
-    if lead_address.destroy
+    if @lead_address.destroy
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
       },
       status: 200
     else
-      render json: { errors: format_activerecord_errors(lead_address.errors) }
+      render json: { errors: format_activerecord_errors(@lead_address.errors) }
     end
   end
 
@@ -86,10 +67,6 @@ class LeadAddressesController < ApplicationController
     params.permit(:id)
   end
 
-  def find_lead_id
-    create_params[:lead_id]
-  end
-
   def update_params
     params.require(:data)
       .permit(
@@ -99,6 +76,10 @@ class LeadAddressesController < ApplicationController
         :country,
         :zip_code
       )
+  end
+
+  def set_lead_address
+    @lead_address = LeadAddress.find(find_id[:id])
   end
 
   def success_response(lead_address, status = 200)

@@ -1,5 +1,5 @@
 class AccountsController < ApplicationController
-
+  before_action :authenticate_user!
   before_action :set_account, only: [:show, :update, :destroy]
 
   def index
@@ -29,11 +29,7 @@ class AccountsController < ApplicationController
   end
 
   def destroy
-    begin
-      @account = User.destroy(find_id[:id])
-    rescue ActiveRecord::RecordNotFound
-      return item_not_found('account', find_id[:id])
-    end
+    @account = User.destroy(find_id[:id])
 
     if @account.destroy
       return render json: {
@@ -50,7 +46,8 @@ class AccountsController < ApplicationController
 
   def permit_params
     params.permit(:email,
-                  :name,
+                  :first_name,
+                  :last_name,
                   :phone
                 )
   end

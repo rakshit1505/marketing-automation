@@ -1,4 +1,8 @@
 class CallAgendaSerializer
   include JSONAPI::Serializer
-  attributes 
+  attributes *[
+    :objective,
+    :description,
+    :call_information_id
+  ]
 end
