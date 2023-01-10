@@ -2,7 +2,7 @@ class DealsController < ApplicationController
   before_action :set_deal, only: [:show, :update, :destroy]
 
   def create
-    potential = Potential.find(params.permit(:id))
+    potential = Potential.find(create_params[:potential_id])
 
     deal = Deal.new(create_params)
 
@@ -82,6 +82,10 @@ class DealsController < ApplicationController
 
   def set_deal
     @deal = Deal.find(find_id[:id])
+  end
+
+  def find_id
+    params.permit(:id)
   end
 
   def success_response(deal, status = 200)

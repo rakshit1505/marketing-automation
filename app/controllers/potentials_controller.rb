@@ -2,7 +2,7 @@ class PotentialsController < ApplicationController
   before_action :set_potential, only: [:show, :update, :destroy]
 
   def create
-    lead = Lead.find(params.permit(:id))
+    lead = Lead.find(create_params[:lead_id])
 
     potential = Potential.new(create_params)
 
@@ -74,6 +74,10 @@ class PotentialsController < ApplicationController
 
   def set_potential
     @potential = Potential.find(find_id[:id])
+  end
+
+  def find_id
+    params.permit(:id)
   end
 
   def success_response(potential, status = 200)

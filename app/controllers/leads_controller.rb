@@ -97,21 +97,9 @@ class LeadsController < ApplicationController
   end
 
   def find_require_ids
-    begin
-      lead_source = LeadSource.find(create_params[:lead_source_id])
-    rescue
-      return item_not_found('lead_source', create_params[:lead_source_id]) if lead_source.blank?
-    end
-    begin
-      lead_status = LeadStatus.find(create_params[:lead_status_id])
-    rescue
-      return item_not_found('lead_status', create_params[:lead_status_id]) if lead_status.blank?
-    end
-    begin
-      lead_rating = LeadRating.find(create_params[:lead_rating_id])
-    rescue
-      return item_not_found('lead_rating', create_params[:lead_rating_id]) if lead_rating.blank?
-    end
+    lead_source = LeadSource.find(create_params[:lead_source_id])
+    # lead_status = LeadStatus.find(create_params[:lead_status_id])
+    # lead_rating = LeadRating.find(create_params[:lead_rating_id])
   end
 
   def success_response(lead, status = 200)

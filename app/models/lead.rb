@@ -5,7 +5,7 @@ class Lead < ApplicationRecord
   has_one :potential, dependent: :destroy
   # has_one :deal, through: :potential
   has_one :lead_address, dependent: :destroy
-  has_many :tasks, dependent: :destroy
+  has_many :tasks
   has_many :statuses, as: :statusable
 
   validates :first_name, :last_name, presence: true

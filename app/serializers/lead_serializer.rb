@@ -9,7 +9,6 @@ class LeadSerializer
     :title,
     :lead_source_id,
     :lead_rating_id,
-    :lead_status_id,
     :industry,
     :company_size,
     :website,
