@@ -10,12 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_10_113854) do
+ActiveRecord::Schema.define(version: 2023_01_11_064412) do
 
   create_table "audits", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "description"
+    t.string "auditable_type"
+    t.integer "auditable_id"
+    t.string "field_name"
+    t.integer "user_id"
+    t.index ["user_id"], name: "index_audits_on_user_id"
   end
 
   create_table "call_agendas", force: :cascade do |t|
@@ -114,12 +119,6 @@ ActiveRecord::Schema.define(version: 2023_01_10_113854) do
     t.integer "lead_rating_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.boolean "name_check", default: true
-    t.boolean "email_check", default: true
-    t.boolean "phone_check", default: true
-    t.boolean "lead_source_check", default: true
-    t.boolean "company_check", default: true
-    t.boolean "sales_owner_check", default: true
     t.integer "user_id"
     t.index ["user_id"], name: "index_leads_on_user_id"
   end
@@ -212,6 +211,7 @@ ActiveRecord::Schema.define(version: 2023_01_10_113854) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "audits", "users"
   add_foreign_key "deals", "potentials"
   add_foreign_key "deals", "users"
   add_foreign_key "leads", "users"

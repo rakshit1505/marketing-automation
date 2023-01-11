@@ -3,6 +3,7 @@ class AccountsController < ApplicationController
   before_action :set_account, only: [:show, :update, :destroy]
 
   def index
+    debugger
     render json: find_accounts, status: 200
   end
 

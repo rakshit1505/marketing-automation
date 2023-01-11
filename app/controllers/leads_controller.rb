@@ -1,11 +1,10 @@
 class LeadsController < ApplicationController
   before_action :find_require_ids, only: [:create]
   before_action :set_lead, only: [:show, :update, :destroy]
-  # around_action :set_logger_username
-
+  before_action :authenticate_user!
   def create
     lead = Lead.new(create_params)
-
+    lead.current = current_user
     begin
       lead.save
     rescue => errors
@@ -23,6 +22,7 @@ class LeadsController < ApplicationController
 
     if update_params.present?
       begin
+        @lead.current = current_user
         success = @lead.update(update_params)
       rescue => errors
         return direct_error_response(errors)
@@ -35,6 +35,7 @@ class LeadsController < ApplicationController
   # ensure method is used to keep delete as idempotent
   def destroy
     if @lead.destroy
+     @lead.current = current_user
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
