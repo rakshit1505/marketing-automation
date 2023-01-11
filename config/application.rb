@@ -34,6 +34,8 @@ module MarketingManagement
         'JWT_SECRET'
       ]
     end
+    config.active_record.observers = :audit_observer
+    config.session_store :disabled
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers

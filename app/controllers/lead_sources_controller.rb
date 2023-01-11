@@ -56,7 +56,7 @@ class LeadSourcesController < ApplicationController
       )
   end
 
-  def find_id[:id]
+  def find_id
     params.permit(:id)
   end
 

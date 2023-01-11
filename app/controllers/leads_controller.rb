@@ -1,6 +1,7 @@
 class LeadsController < ApplicationController
   before_action :find_require_ids, only: [:create]
   before_action :set_lead, only: [:show, :update, :destroy]
+  # around_action :set_logger_username
 
   def create
     lead = Lead.new(create_params)
@@ -103,7 +104,7 @@ class LeadsController < ApplicationController
       return item_not_found('lead_source', create_params[:lead_source_id]) if lead_source.blank?
     end
     begin
-      lead_status = LeadStatus.find(create_params[:lead_status_id])
+      lead_status = Status.find(create_params[:lead_status_id])
     rescue
       return item_not_found('lead_status', create_params[:lead_status_id]) if lead_status.blank?
     end
