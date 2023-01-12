@@ -46,8 +46,11 @@ class DealsController < ApplicationController
   end
 
   def index
-    render json: find_deals, status: 200
+     @deals = Deal.all
+    filter_items if @deals.present?
+    render json: @deals, status: 200
   end
+
 
   private
 
@@ -151,5 +154,17 @@ class DealsController < ApplicationController
         total_pages: total_pages
       })
     end
+  end
+  def filter_items
+    start_date = params[:date_from]&.to_date&.beginning_of_day
+    end_date = params[:date_to]&.to_date&.end_of_day
+    if start_date.present? && end_date.present? && params[:filter_by].present? 
+      @deals = @deals.where(created_at: start_date..end_date) if params[:filter_by] == "created_at"
+      @deals = @deals.where(updated_at: start_date..end_date) if params[:filter_by] == "last_modification"
+    end
+    @deals = @deals.where(lead_source_id: (params[:data][:lead_source_id])) unless params[:lead_source_id].blank?
+    @deals = @deals.where(status_id: (params[:data][:status_ids])) unless params[:status_ids].blank?
+    @deals = @deals.where(industry: (params[:data][:industry])) unless params[:industry].blank?
+    @deals = @deals.where(company_size: (params[:data][:company_size])) unless params[:company_size].blank?
   end
 end

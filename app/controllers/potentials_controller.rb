@@ -46,7 +46,9 @@ class PotentialsController < ApplicationController
   end
 
   def index
-    render json: find_potentials, status: 200
+    @potentials = Potential.all
+    filter_items if @potentials.present?
+    render json: @potentials, status: 200
   end
 
   private
@@ -143,5 +145,17 @@ class PotentialsController < ApplicationController
         total_pages: total_pages
       })
     end
+  end
+  def filter_items
+    start_date = params[:date_from]&.to_date&.beginning_of_day
+    end_date = params[:date_to]&.to_date&.end_of_day
+    if start_date.present? && end_date.present? && params[:filter_by].present? 
+      @potentials = @potentials.where(created_at: start_date..end_date) if params[:filter_by] == "created_at"
+      @potentials = @potentials.where(updated_at: start_date..end_date) if params[:filter_by] == "last_modification"
+    end
+    @potentials = @potentials.where(lead_source_id: (params[:data][:lead_source_id])) unless params[:lead_source_id].blank?
+    @potentials = @potentials.where(status_id: (params[:data][:status_ids])) unless params[:status_ids].blank?
+    @potentials = @potentials.where(industry: (params[:data][:industry])) unless params[:industry].blank?
+    @potentials = @potentials.where(value: (params[:data][:value])) unless params[:value].blank?
   end
 end
