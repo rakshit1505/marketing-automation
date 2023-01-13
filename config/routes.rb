@@ -22,4 +22,5 @@ Rails.application.routes.draw do
   resources :notes, only: [:create, :show, :update, :destroy, :index]
   resources :roles, only: [:create, :show, :update, :destroy, :index]
   resources :tasks, only: [:create, :show, :update, :destroy, :index]
+  resources :pipelines, only: [:create, :show, :update, :destroy, :index]
 end
