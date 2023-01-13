@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_13_084649) do
+ActiveRecord::Schema.define(version: 2023_01_13_104816) do
 
   create_table "call_agendas", force: :cascade do |t|
     t.string "objective"
@@ -140,6 +140,20 @@ ActiveRecord::Schema.define(version: 2023_01_13_084649) do
     t.index ["notable_type", "notable_id"], name: "index_notes_on_notable_type_and_notable_id"
   end
 
+  create_table "pipelines", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "lead_source_id", null: false
+    t.string "account_name"
+    t.integer "score"
+    t.datetime "journey"
+    t.integer "probability"
+    t.float "expected_revenue"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["lead_source_id"], name: "index_pipelines_on_lead_source_id"
+    t.index ["user_id"], name: "index_pipelines_on_user_id"
+  end
+
   create_table "potentials", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "lead_id", null: false
@@ -207,6 +221,8 @@ ActiveRecord::Schema.define(version: 2023_01_13_084649) do
   add_foreign_key "deals", "potentials"
   add_foreign_key "deals", "users"
   add_foreign_key "leads", "users"
+  add_foreign_key "pipelines", "lead_sources"
+  add_foreign_key "pipelines", "users"
   add_foreign_key "potentials", "companies"
   add_foreign_key "potentials", "leads"
   add_foreign_key "potentials", "users"
