@@ -59,6 +59,7 @@ class DealsController < ApplicationController
         :sign_off_date,
         :term,
         :tenure,
+        :value,
         :description,
         :status
       ).merge(
@@ -73,6 +74,7 @@ class DealsController < ApplicationController
         :sign_off_date,
         :term,
         :tenure,
+        :value,
         :description,
         :status
       ).merge(
@@ -117,16 +119,18 @@ class DealsController < ApplicationController
   end
 
   def index_params
-    params.permit(:page, :per_page)
+    params.permit(:page, :per_page, :deal)
   end
 
   def find_deals
     pagination_builder = PaginationBuilder.new(index_params[:page], index_params[:per_page])
     limit, offset = pagination_builder.paginate
     deals = Deal.
+      search_deal(index_params[:deal]).
       order(id: :asc).
       limit(limit).offset(offset)
     next_page = Deal.
+      search_deal(index_params[:deal]).
       limit(1).offset(offset + limit).count
     data = serialized_deals(deals, next_page)
     merge_pagination_data(data, pagination_builder)
@@ -144,7 +148,8 @@ class DealsController < ApplicationController
   def merge_pagination_data(data, pagination_builder)
     if pagination_builder.page == 1
       total_count = Deal.
-        count
+                    search_deal(index_params[:deal]).
+                    count
       total_pages = pagination_builder.total_pages(total_count)
       data.merge!({
         total_count: total_count,

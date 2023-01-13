@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_09_102228) do
+ActiveRecord::Schema.define(version: 2023_01_13_084649) do
 
   create_table "call_agendas", force: :cascade do |t|
     t.string "objective"
@@ -40,7 +40,7 @@ ActiveRecord::Schema.define(version: 2023_01_09_102228) do
   end
 
   create_table "companies", force: :cascade do |t|
-    t.string "last_name"
+    t.string "name"
     t.string "website"
     t.string "social_media_handle"
     t.integer "company_id"
@@ -59,6 +59,7 @@ ActiveRecord::Schema.define(version: 2023_01_09_102228) do
     t.integer "status"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.float "value"
     t.index ["potential_id"], name: "index_deals_on_potential_id"
     t.index ["user_id"], name: "index_deals_on_user_id"
   end
@@ -95,9 +96,9 @@ ActiveRecord::Schema.define(version: 2023_01_09_102228) do
   create_table "leads", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
-    t.string "email_id"
+    t.string "email"
     t.string "phone_number"
-    t.string "company_id"
+    t.integer "company_id"
     t.string "title"
     t.integer "lead_source_id"
     t.integer "lead_status_id"
@@ -146,6 +147,9 @@ ActiveRecord::Schema.define(version: 2023_01_09_102228) do
     t.string "outcome"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "company_id"
+    t.float "amount"
+    t.index ["company_id"], name: "index_potentials_on_company_id"
     t.index ["lead_id"], name: "index_potentials_on_lead_id"
     t.index ["user_id"], name: "index_potentials_on_user_id"
   end
@@ -203,6 +207,7 @@ ActiveRecord::Schema.define(version: 2023_01_09_102228) do
   add_foreign_key "deals", "potentials"
   add_foreign_key "deals", "users"
   add_foreign_key "leads", "users"
+  add_foreign_key "potentials", "companies"
   add_foreign_key "potentials", "leads"
   add_foreign_key "potentials", "users"
 end

@@ -55,13 +55,12 @@ class LeadsController < ApplicationController
       .permit(
         :first_name,
         :last_name,
-        :email_id,
+        :email,
         :phone_number,
         :company_id,
         :title,
         :lead_source_id,
         :lead_rating_id,
-        :lead_status_id,
         :industry,
         :company_size,
         :website,
@@ -78,13 +77,12 @@ class LeadsController < ApplicationController
       .permit(
         :first_name,
         :last_name,
-        :email_id,
+        :email,
         :phone_number,
         :company_id,
         :title,
         :lead_source_id,
         :lead_rating_id,
-        :lead_status_id,
         :industry,
         :company_size,
         :website,
@@ -131,16 +129,18 @@ class LeadsController < ApplicationController
   end
 
   def index_params
-    params.permit(:page, :per_page)
+    params.permit(:page, :per_page, :lead)
   end
 
   def find_leads
     pagination_builder = PaginationBuilder.new(index_params[:page], index_params[:per_page])
     limit, offset = pagination_builder.paginate
     leads = Lead.
+      search_lead(index_params[:lead]).
       order(id: :asc).
       limit(limit).offset(offset)
     next_page = Lead.
+      search_lead(index_params[:lead]).
       limit(1).offset(offset + limit).count
     data = serialized_leads(leads, next_page)
     merge_pagination_data(data, pagination_builder)
@@ -158,7 +158,8 @@ class LeadsController < ApplicationController
   def merge_pagination_data(data, pagination_builder)
     if pagination_builder.page == 1
       total_count = Lead.
-        count
+                    search_lead(index_params[:lead]).
+                    count
       total_pages = pagination_builder.total_pages(total_count)
       data.merge!({
         total_count: total_count,

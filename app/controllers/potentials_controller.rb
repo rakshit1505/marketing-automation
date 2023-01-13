@@ -4,7 +4,7 @@ class PotentialsController < ApplicationController
   def create
     lead = Lead.find(create_params[:lead_id])
 
-    potential = Potential.new(create_params)
+    potential = Potential.new(create_params.merge(company_id: lead.company_id))
 
     begin
       potential.save
@@ -56,7 +56,9 @@ class PotentialsController < ApplicationController
       .permit(
         :lead_id,
         :outcome,
-        :status
+        :status,
+        :amount,
+        :company_id
       ).merge(
         user_id: current_user.id
       )
@@ -66,7 +68,9 @@ class PotentialsController < ApplicationController
     params.require(:data)
       .permit(
         :outcome,
-        :status
+        :status,
+        :amount,
+        :company_id
       ).merge(
         user_id: current_user.id
       )
@@ -109,16 +113,18 @@ class PotentialsController < ApplicationController
   end
 
   def index_params
-    params.permit(:page, :per_page)
+    params.permit(:page, :per_page, :potential)
   end
 
   def find_potentials
     pagination_builder = PaginationBuilder.new(index_params[:page], index_params[:per_page])
     limit, offset = pagination_builder.paginate
     potentials = Potential.
+      search_potential(index_params[:potential]).
       order(id: :asc).
       limit(limit).offset(offset)
     next_page = Potential.
+      search_potential(index_params[:potential]).
       limit(1).offset(offset + limit).count
     data = serialized_potentials(potentials, next_page)
     merge_pagination_data(data, pagination_builder)
@@ -136,6 +142,7 @@ class PotentialsController < ApplicationController
   def merge_pagination_data(data, pagination_builder)
     if pagination_builder.page == 1
       total_count = Potential.
+        search_potential(index_params[:potential]).
         count
       total_pages = pagination_builder.total_pages(total_count)
       data.merge!({

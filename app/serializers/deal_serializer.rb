@@ -5,6 +5,7 @@ class DealSerializer
     :sign_off_date,
     :term,
     :tenure,
+    :value,
     :description,
     :status,
     :potential_id,

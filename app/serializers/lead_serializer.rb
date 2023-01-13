@@ -3,7 +3,7 @@ class LeadSerializer
   attributes *[
     :first_name,
     :last_name,
-    :email_id,
+    :email,
     :phone_number,
     :company_id,
     :title,
