@@ -5,10 +5,10 @@ module CreateLead
     @leads = []
     @valid_leads_arr = []
     finding_duplicate_rows(leads_arr, start_index)
-    leads_arr.each.with_index(start_index) do |lead, index|
+    leads_arr.each.with_index(start_index) do |lead, ind|
     leads_params(lead)
-      initialize_record(ind) if @rep_params[:id].nil? && @errors.blank?
-      update_record(ind) if @rep_params[:id].present? && @errors.blank?
+      initialize_record(ind) if @lead_params[:id].nil? && @errors.blank?
+      update_record(ind) if @lead_params[:id].present? && @errors.blank?
     end
 
     if @errors.present?
@@ -35,18 +35,17 @@ module CreateLead
   end
 
   def self.initialize_record(ind)
-    (@start_date..@end_date).each do |date|
-      rep_schedule = RepSchedule.find_by(@rep_params.except(:start_date, :end_date, :lunch_start_time, :lunch_end_time).merge(date: date.in_time_zone))
-      if rep_schedule.present?
-        error_msg = "Row #{ind} :- Rep Schedule with following data already exist.".delete('\\"')
+      lead = Lead.find_by(@lead_params)
+      if lead.present?
+        error_msg = "Row #{ind} :- Lead with following data already exist.".delete('\\"')
         @errors << error_msg unless @errors.include?(error_msg)
       else
-        rep_schedule = RepSchedule.new(@rep_params.except(:start_date, :end_date).merge(date: date.in_time_zone))
-        if rep_schedule.valid?
-          @valid_rep_schedules_arr << rep_schedule
-          @reps << rep_schedule
+        lead = Lead.new(@lead_params)
+        if lead.valid?
+          @valid_leads_arr << lead
+          @leads << lead
         else
-          error_msg = "Row #{ind} :- Rep Schedule contains following errors :- #{rep_schedule.errors.full_messages}".delete('\\"')
+          error_msg = "Row #{ind} :- Lead contains following errors :- #{lead.errors.full_messages}".delete('\\"')
           @errors << error_msg unless @errors.include?(error_msg)
         end
       end
@@ -54,25 +53,25 @@ module CreateLead
   end
 
   def self.update_record(ind)
-    find_rep_schedule(ind)
+    find_lead(ind)
     if @errors.empty?
-      rep_schedule_exist = RepSchedule.find_by(@rep_params.except(:id, :start_date, :end_date, :lunch_start_time, :lunch_end_time))
-      if rep_schedule_exist.present? && rep_schedule_exist&.id != @rep_schedule.id
-        error_msg = "Row #{ind} :- Rep Schedule with following data already exist.".delete('\\"')
+      lead_exist = Lead.find_by(@lead_params)
+      if lead_exist.present? && lead_exist&.id != @lead.id
+        error_msg = "Row #{ind} :- Lead with following data already exist.".delete('\\"')
         @errors << error_msg unless @errors.include?(error_msg)
       else
-        if @rep_schedule.update(@rep_params)
-          @reps << @rep_schedule
+        if @lead.update(@lead_params)
+          @leads << @lead
         else
-          error_msg = "Row #{ind} :- Rep Schedule contains following errors :- #{@rep_schedule.errors.full_messages}".delete('\\"')
+          error_msg = "Row #{ind} :- lead Schedule contains following errors :- #{@lead.errors.full_messages}".delete('\\"')
           @errors << error_msg unless @errors.include?(error_msg)
         end
       end
     end
   end
 
-  def self.find_rep_schedule(ind)
-    @rep_schedule = RepSchedule.find_by_id(@rep_params[:id])  
-    @errors << "Row #{ind} :- No such Rep Schedule found with given ID." if @rep_schedule.nil?
+  def self.find_lead(ind)
+    @lead = Lead.find_by_id(@lead_params[:id])  
+    @errors << "Row #{ind} :- No such lead Schedule found with given ID." if @lead.nil?
   end
 end
