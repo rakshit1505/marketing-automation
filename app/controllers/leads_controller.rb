@@ -46,8 +46,32 @@ class LeadsController < ApplicationController
 
   def index
     @leads = Lead.all
-    filter_items if @leads.present?
+    filter_items if @leads.exists?
     render json: @leads, status: 200
+  end
+
+  def download_template
+      ActiveRecord::Base.transaction do
+        data = DownloadTemplateService.new.excel_template
+        file = File.new("lead.xlsx", "wb")
+        file.write(data.to_stream.read)
+        file.close
+        send_file(file.path, :type => 'xlsx', :disposition => 'inline')
+      end
+  end
+
+  def file_upload
+    file = params[:file]
+    return render json: {errors: "No file present"}, status: :unprocessable_entity unless file.present?
+    file_ext = File.extname(file.original_filename)
+    return render json: {errors: "Unknown file type. File format must be a csv, xls or xlsx"}, status: :unprocessable_entity unless file_ext == ".xls" || file_ext == ".xlsx"
+    response = Lead.import_file_data(file)
+
+    if response[:errors].present?
+      return render json: {errors: response[:errors]}, status: :unprocessable_entity
+    else
+      render json: { message: "Leads uploaded succesfully!" }
+    end
   end
 
   private

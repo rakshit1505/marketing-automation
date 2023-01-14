@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_11_064412) do
+ActiveRecord::Schema.define(version: 2023_01_13_090735) do
+
+  create_table "addresses", force: :cascade do |t|
+    t.string "street"
+    t.string "city"
+    t.string "state"
+    t.string "zip_code"
+    t.string "country"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "audits", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
@@ -203,9 +213,11 @@ ActiveRecord::Schema.define(version: 2023_01_11_064412) do
     t.string "unconfirmed_email"
     t.string "first_name", limit: 100
     t.string "last_name", limit: 100
+    t.string "full_name"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["first_name"], name: "index_users_on_first_name"
+    t.index ["full_name"], name: "index_users_on_full_name"
     t.index ["jti"], name: "index_users_on_jti", unique: true
     t.index ["last_name"], name: "index_users_on_last_name"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

@@ -13,4 +13,12 @@ class User < ApplicationRecord
   has_many :tasks
 
   validates :first_name, :last_name, presence: true
+
+ # callbacks
+  before_save :set_full_name
+
+
+  def set_full_name
+    self.full_name = self.first_name.to_s + " " + self.last_name.to_s
+  end
 end

@@ -59,3 +59,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'jsonapi-serializer'
 gem 'will_paginate'
+gem "net-http"
+gem 'rails-observers'
+gem "roo", "~> 2.9.0"
+gem 'caxlsx'
