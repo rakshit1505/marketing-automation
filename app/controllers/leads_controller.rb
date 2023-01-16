@@ -1,35 +1,41 @@
 class LeadsController < ApplicationController
+
+  require "create_lead.rb"
+
   before_action :find_require_ids, only: [:create]
   before_action :set_lead, only: [:show, :update, :destroy]
 
   def create
-    lead = Lead.new(create_params)
+    leads_arr = params[:leads]
+    start_ind = 1
 
-    begin
-      lead.save
-    rescue => errors
-      return direct_error_response(errors)
+    response = CreateLead.iterate_lead(leads_arr, start_ind)
+
+    if response[:errors].present?
+      return render json: {errors: response[:errors]}, status: :unprocessable_entity
+    else
+      render json: ActiveModel::ArraySerializer.new(response[:leads], each_serializer: LeadSerializer).as_json, status: :ok
     end
-    return success_response(lead, :created)
+  end
+
+  def update_reps
+    leads_arr = params[:leads]
+    start_ind = 1
+
+    response = CreateLead.iterate_lead(leads_arr, start_ind)
+    
+    if response[:errors].present?
+      return render json: {errors: response[:errors]}, status: :unprocessable_entity
+    else
+      render json: ActiveModel::ArraySerializer.new(response[:leads], each_serializer: LeadSerializer).as_json, status: :ok
+    end
+    
   end
 
   def show
     return success_response(@lead)
   end
 
-  def update
-    success = false
-
-    if update_params.present?
-      begin
-        success = @lead.update(update_params)
-      rescue => errors
-        return direct_error_response(errors)
-      end
-      return error_response(@lead) unless success
-    end
-    return success_response(@lead) if success
-  end
 
   # ensure method is used to keep delete as idempotent
   def destroy

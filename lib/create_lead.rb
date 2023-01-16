@@ -19,7 +19,7 @@ module CreateLead
     end
   end
 
-  def self.finding_duplicate_rows(leads_arr, start_index)
+  def self.finding_duplicate_rows(leads_arr, ind)
     leads_arr.each.with_index(ind).group_by(&:first).inject({}) do |result, (val, group)|
       next result if group.length == 1
       @errors << "Row #{group.map {|pair| pair[1]}} :- contains same data."
@@ -49,7 +49,6 @@ module CreateLead
           @errors << error_msg unless @errors.include?(error_msg)
         end
       end
-    end
   end
 
   def self.update_record(ind)

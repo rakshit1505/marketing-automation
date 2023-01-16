@@ -1,5 +1,5 @@
 class Lead < ApplicationRecord
-    include CreateLead
+   require "create_lead.rb"
 
   belongs_to :user, optional: true
   belongs_to :lead_source, optional: true

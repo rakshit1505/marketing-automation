@@ -15,7 +15,7 @@ Rails.application.routes.draw do
   resources :lead_ratings, only: [:create, :show, :update, :destroy, :index]
   resources :lead_sources, only: [:create, :show, :update, :destroy, :index]
   resources :statuses, only: [:create, :show, :update, :destroy, :index]
-  resources :leads, only: [:create, :show, :update, :destroy, :index]
+  # resources :leads, only: [:create, :show, :update, :destroy, :index]
   resources :potentials, only: [:create, :show, :update, :destroy, :index]
   resources :deals, only: [:create, :show, :update, :destroy, :index]
   resources :meetings, only: [:create, :show, :update, :destroy, :index]
@@ -23,5 +23,10 @@ Rails.application.routes.draw do
   resources :roles, only: [:create, :show, :update, :destroy, :index]
   resources :tasks, only: [:create, :show, :update, :destroy, :index]
   get 'download_template', to: 'leads#download_template'
-
+  resources :leads do
+      collection do
+        patch "update_leads"
+        post "file_upload"
+      end
+    end
 end
