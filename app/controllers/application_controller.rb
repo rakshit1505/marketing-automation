@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   rescue_from ActiveRecord::RecordNotFound, with: :record_not_found_error
   respond_to :json
   include ActionController::MimeResponds
+  skip_before_action :verify_authenticity_token
 
 
   def record_not_found_error(exception)
@@ -17,12 +18,13 @@ class ApplicationController < ActionController::Base
       result
   end
 
-  # def item_not_found(type, id)
-  #   render json: {
-  #       errors: [{
-  #       "#{type}" => "Record with id= #{id} not found"
-  #       }]
-  #   },
-  #   status: :unprocessable_entity
-  # end
+  def item_not_found(type, id)
+    render json: {
+        errors: [{
+        "#{type}" => "Record with id= #{id} not found"
+        }]
+    },
+    status: :unprocessable_entity
+  end
+
 end

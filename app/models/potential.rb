@@ -4,6 +4,8 @@ class Potential < ApplicationRecord
   belongs_to :user, optional: true
   has_one :deal, dependent: :destroy
   has_many :statuses, as: :statusable
+  has_many :audits, as: :auditable
+  attr_accessor :current
 
   scope :search_potential, -> (potential) {
     if potential.present?

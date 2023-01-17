@@ -8,6 +8,9 @@ class Lead < ApplicationRecord
   has_one :lead_address, dependent: :destroy
   has_many :tasks
   has_many :statuses, as: :statusable
+  has_many :audits, as: :auditable
+  validates :first_name, :last_name, presence: true
+  attr_accessor :current
 
   validates :first_name, :last_name, :company_id, presence: true
 

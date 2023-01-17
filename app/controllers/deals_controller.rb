@@ -5,7 +5,7 @@ class DealsController < ApplicationController
     potential = Potential.find(create_params[:potential_id])
 
     deal = Deal.new(create_params)
-
+    deal.current = current_user
     begin
       deal.save
     rescue => errors
@@ -22,6 +22,7 @@ class DealsController < ApplicationController
     success = false
     if update_params.present?
       begin
+        @deal.current = current_user
         success = @deal.update(update_params)
       rescue => errors
         return direct_error_response(errors)
@@ -35,6 +36,7 @@ class DealsController < ApplicationController
   def destroy
 
     if @deal.destroy
+      @deal.current = current_user
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"

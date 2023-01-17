@@ -5,6 +5,7 @@ class PotentialsController < ApplicationController
     lead = Lead.find(create_params[:lead_id])
 
     potential = Potential.new(create_params.merge(company_id: lead.company_id))
+    potential.current = current_user
 
     begin
       potential.save
@@ -22,6 +23,7 @@ class PotentialsController < ApplicationController
     success = false
     if update_params.present?
       begin
+        @potential.current = current_user
         success = @potential.update(update_params)
       rescue => errors
         return direct_error_response(errors)
@@ -35,6 +37,7 @@ class PotentialsController < ApplicationController
   def destroy
 
     if @potential.destroy
+      @potential.current = current_user
       return render json: {
           id: find_id[:id],
           message: "Record successfully deleted"
