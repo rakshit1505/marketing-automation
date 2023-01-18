@@ -82,12 +82,14 @@ class LeadsController < ApplicationController
     leads.each do |lead|
       Potential.create!(lead_id: lead.id, user_id: current_user&.id, company_id: lead&.company_id) if lead_params[:convert_to] == 'potential'
       Deal.create!(user_id: current_user&.id) if lead_params[:convert_to] == 'deal'
+      Pipeline.create!(user_id: current_user&.id, lead_source_id: lead&.lead_source_id,
+                       account_name: lead.first_name + " " + lead.last_name) if lead_params[:convert_to] == 'pipeline'
     end
 
     return render json: {
           lead_id: lead_params[:lead_ids],
           user_id: current_user&.id,
-          message: lead_params[:convert_to] == 'deal' ? 'Lead successfully transfered to deal' : 'Lead successfully transfered to potential'
+          message: lead_params[:convert_to] == 'deal' ? 'Lead successfully transfered to deal' : lead_params[:convert_to] == 'potential' ? 'Lead successfully transfered to potential' : 'Lead successfully transfered to pipeline'
       },
       status: 200
   end
