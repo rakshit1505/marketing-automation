@@ -9,7 +9,6 @@ class Lead < ApplicationRecord
   has_many :tasks
   has_many :statuses, as: :statusable
   has_many :audits, as: :auditable
-  validates :first_name, :last_name, presence: true
   attr_accessor :current
 
   validates :first_name, :last_name, :company_id, presence: true
@@ -27,5 +26,12 @@ class Lead < ApplicationRecord
       self.all
     end
     }
+
+  scope :my_leads, -> (user_id) { user_id.present? ? where(user_id: user_id) : all }
+
+  def self.search(index_params)
+    search_lead(index_params[:lead]).
+    my_leads(index_params[:user_id])
+  end
 
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_11_064412) do
+ActiveRecord::Schema.define(version: 2023_01_18_075714) do
 
   create_table "audits", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
@@ -61,16 +61,16 @@ ActiveRecord::Schema.define(version: 2023_01_11_064412) do
 
   create_table "deals", force: :cascade do |t|
     t.integer "user_id", null: false
-    t.integer "potential_id", null: false
+    t.integer "potential_id"
     t.datetime "kick_off_date"
     t.datetime "sign_off_date"
     t.string "term"
     t.string "tenure"
     t.string "description"
     t.integer "status"
+    t.float "value"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.float "value"
     t.index ["potential_id"], name: "index_deals_on_potential_id"
     t.index ["user_id"], name: "index_deals_on_user_id"
   end
@@ -191,6 +191,8 @@ ActiveRecord::Schema.define(version: 2023_01_11_064412) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "statusable_type"
     t.integer "statusable_id"
+    t.integer "company_id"
+    t.index ["company_id"], name: "index_statuses_on_company_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -238,4 +240,5 @@ ActiveRecord::Schema.define(version: 2023_01_11_064412) do
   add_foreign_key "potentials", "companies"
   add_foreign_key "potentials", "leads"
   add_foreign_key "potentials", "users"
+  add_foreign_key "statuses", "companies"
 end

@@ -1,12 +1,14 @@
 class LeadsController < ApplicationController
+  skip_before_action :verify_authenticity_token
   before_action :find_require_ids, only: [:create]
   before_action :set_lead, only: [:show, :update, :destroy]
   before_action :authenticate_user!
+
   def create
     lead = Lead.new(create_params)
     lead.current = current_user
     begin
-      lead.save
+      lead.save!
     rescue => errors
       return direct_error_response(errors)
     end
@@ -50,6 +52,46 @@ class LeadsController < ApplicationController
     render json: find_leads, status: 200
   end
 
+  def lead_mass_delete
+    leads = Lead.where(id: delete_params[:lead_ids])
+    leads.each do |lead|
+      lead.destroy
+      lead.current = current_user
+    end
+    return render json: {
+          id: delete_params[:lead_ids],
+          message: 'Leads successfully deleted'
+      },
+      status: 200
+  end
+
+  def lead_mass_transfer
+    user = User.find(lead_params[:user_id])
+    leads = Lead.where(id: lead_params[:lead_ids]).update_all(user_id: lead_params[:user_id], updated_at: Time.now)
+    return render json: {
+          lead_id: lead_params[:lead_ids],
+          user_id: lead_params[:user_id],
+          message: 'Lead successfully transfered'
+      },
+      status: 200
+  end
+
+  def lead_mass_convert
+    leads = Lead.where(id: lead_params[:lead_ids])
+
+    leads.each do |lead|
+      Potential.create!(lead_id: lead.id, user_id: current_user&.id, company_id: lead&.company_id) if lead_params[:convert_to] == 'potential'
+      Deal.create!(user_id: current_user&.id) if lead_params[:convert_to] == 'deal'
+    end
+
+    return render json: {
+          lead_id: lead_params[:lead_ids],
+          user_id: current_user&.id,
+          message: lead_params[:convert_to] == 'deal' ? 'Lead successfully transfered to deal' : 'Lead successfully transfered to potential'
+      },
+      status: 200
+  end
+
   private
 
   def create_params
@@ -72,6 +114,22 @@ class LeadsController < ApplicationController
 
   def find_id
     params.permit(:id)
+  end
+
+  def delete_params
+    params.require(:data)
+      .permit(
+        lead_ids:[]
+      )
+  end
+
+  def lead_params
+    params.require(:data)
+      .permit(
+        :user_id,
+        :convert_to,
+        lead_ids:[]
+      )
   end
 
   def update_params
@@ -131,18 +189,18 @@ class LeadsController < ApplicationController
   end
 
   def index_params
-    params.permit(:page, :per_page, :lead)
+    params.permit(:page, :per_page, :lead, :user_id)
   end
 
   def find_leads
     pagination_builder = PaginationBuilder.new(index_params[:page], index_params[:per_page])
     limit, offset = pagination_builder.paginate
     leads = Lead.
-      search_lead(index_params[:lead]).
+      search(index_params).
       order(id: :asc).
       limit(limit).offset(offset)
     next_page = Lead.
-      search_lead(index_params[:lead]).
+      search(index_params).
       limit(1).offset(offset + limit).count
     data = serialized_leads(leads, next_page)
     merge_pagination_data(data, pagination_builder)
@@ -160,7 +218,7 @@ class LeadsController < ApplicationController
   def merge_pagination_data(data, pagination_builder)
     if pagination_builder.page == 1
       total_count = Lead.
-                    search_lead(index_params[:lead]).
+                    search(index_params).
                     count
       total_pages = pagination_builder.total_pages(total_count)
       data.merge!({
