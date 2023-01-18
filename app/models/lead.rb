@@ -9,6 +9,7 @@ class Lead < ApplicationRecord
   has_many :tasks
   has_many :statuses, as: :statusable
   has_many :audits, as: :auditable
+  has_many :notes, as: :notable
   attr_accessor :current
 
   validates :first_name, :last_name, :company_id, presence: true

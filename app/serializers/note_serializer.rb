@@ -5,6 +5,8 @@ class NoteSerializer
     :description,
     :lead_id,
     :user_id,
-    :attachment_id
+    :attachment_id,
+    :notable_id,
+    :notable_type
   ]
 end

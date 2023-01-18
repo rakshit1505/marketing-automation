@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_18_075714) do
+ActiveRecord::Schema.define(version: 2023_01_18_100654) do
 
   create_table "audits", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
@@ -197,11 +197,13 @@ ActiveRecord::Schema.define(version: 2023_01_18_075714) do
 
   create_table "tasks", force: :cascade do |t|
     t.integer "task_owner"
-    t.string "last_name"
     t.string "due_date_time"
     t.integer "priority"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "repeat"
+    t.boolean "reminder"
+    t.string "subject"
   end
 
   create_table "users", force: :cascade do |t|

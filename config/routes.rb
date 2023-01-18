@@ -26,6 +26,7 @@ Rails.application.routes.draw do
   resources :deals, only: [:create, :show, :update, :destroy, :index]
   resources :meetings, only: [:create, :show, :update, :destroy, :index]
   resources :notes, only: [:create, :show, :update, :destroy, :index]
+  resources :lead_notes, only: [:create, :show, :update, :destroy, :index]
   resources :roles, only: [:create, :show, :update, :destroy, :index]
   resources :tasks, only: [:create, :show, :update, :destroy, :index]
   resources :pipelines, only: [:create, :show, :update, :destroy, :index]
