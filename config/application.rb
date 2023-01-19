@@ -9,6 +9,8 @@ Bundler.require(*Rails.groups)
 module MarketingManagement
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
+    config.active_record.yaml_column_permitted_classes = [Symbol, Hash, Array, ActiveSupport::HashWithIndifferentAccess]
+
     config.load_defaults 6.0
 
     config.before_configuration do

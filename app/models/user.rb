@@ -11,6 +11,7 @@ class User < ApplicationRecord
   belongs_to :department, optional: true
   has_many :meetings, dependent: :destroy
   has_many :tasks
+  has_one :manage_data
 
   validates :first_name, :last_name, presence: true
 
