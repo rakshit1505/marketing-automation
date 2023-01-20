@@ -1,0 +1,38 @@
+@import 'bootstrap-email';
+
+@font-face {
+  font-family: 'WorkSans';
+  src: font-url('WorkSans.ttf');
+}
+@font-face {
+  font-family: 'Inter';
+  src: font-url('Inter.ttf');
+}
+
+.hey-textlabel-text {
+  font-size: 16px;
+  // font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 20px;
+  letter-spacing: 0.12px;
+  color: #272727;
+  text-transform: capitalize;
+  opacity: 1;
+  display: inline;
+  margin-bottom: 20px;
+}
+
+.user-textlabel-text {
+  font-size: 16px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  // line-height: 20px;
+  letter-spacing: 0.12px;
+  color: #272727;
+  text-transform: capitalize;
+  opacity: 1;
+  display: inline;
+  margin-bottom: 20px;
+}

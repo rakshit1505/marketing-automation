@@ -10,7 +10,7 @@ class AuditObserver < ActiveRecord::Observer
   end
 
   def before_destroy(auditable)
-    Audit.create!(auditable_type:auditable.class.name,description: " Deleted attributes from #{auditable.class.name}",field_name: "#{auditable.changed.inspect}",user_id: auditable&.current&.id)
+    Audit.create!(auditable_type:auditable.class.name,description: "Deleted attributes from #{auditable.class.name}",field_name: "#{auditable.changed.inspect}",user_id: auditable&.current&.id)
   end
 
 end

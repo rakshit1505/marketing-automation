@@ -60,3 +60,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'jsonapi-serializer'
 gem 'will_paginate'
 gem 'rails-observers'
+gem 'sidekiq_alive'
+gem 'sidekiq', '<7'
+gem 'redis'

@@ -9,6 +9,7 @@ class LeadsController < ApplicationController
     lead.current = current_user
     begin
       lead.save!
+      AssignLeadJob.perform_later(lead, current_user, from = 'create_lead')
     rescue => errors
       return direct_error_response(errors)
     end
@@ -67,7 +68,15 @@ class LeadsController < ApplicationController
 
   def lead_mass_transfer
     user = User.find(lead_params[:user_id])
-    leads = Lead.where(id: lead_params[:lead_ids]).update_all(user_id: lead_params[:user_id], updated_at: Time.now)
+    leads = Lead.where(id: lead_params[:lead_ids])
+    leads.each do |lead|
+      lead.current = current_user
+      if lead.update(user_id: lead_params[:user_id])
+        AssignLeadJob.perform_later(lead, current_user, from = 'lead_mass_transfer')
+      else
+        return error_response(lead)
+      end
+    end
     return render json: {
           lead_id: lead_params[:lead_ids],
           user_id: lead_params[:user_id],
@@ -111,6 +120,8 @@ class LeadsController < ApplicationController
         :company_size,
         :website,
         :address_id
+      ).merge(
+        user_id: current_user.id
       )
   end
 
